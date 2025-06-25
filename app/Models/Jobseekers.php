@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Jobseekers extends Model
+
+class Jobseekers extends Authenticatable
 {
     use HasFactory;
 
@@ -42,4 +44,9 @@ class Jobseekers extends Model
         'password',
         'pass',
     ];
+
+    public function educationDetails()
+    {
+        return $this->hasMany(EducationDetails::class, 'user_id');
+    }
 }

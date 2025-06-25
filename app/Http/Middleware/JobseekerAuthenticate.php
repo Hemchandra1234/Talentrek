@@ -15,7 +15,7 @@ class JobseekerAuthenticate extends Middleware
     protected function redirectTo($request)
     {
         if (! $request->expectsJson()) {
-            return route('jobseeker.login');
+            return route('jobseeker.sign-in');
         }
     }
 
@@ -26,7 +26,7 @@ class JobseekerAuthenticate extends Middleware
             return $this->auth->shouldUse('jobseeker');
         }
 
-        $this->unauthenticated($request, ['admin']);
+        $this->unauthenticated($request, ['jobseeker']);
     }
 
 }

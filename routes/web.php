@@ -108,19 +108,21 @@ Route::group(['prefix' => 'jobseeker'], function() {
 		Route::view('/verify-otp','site.jobseeker.verify-otp')->name('jobseeker.verify-otp');
 		Route::view('/reset-password','site.jobseeker.reset-password')->name('jobseeker.reset-password');
 		Route::view('/registration','site.jobseeker.registration')->name('jobseeker.registration');
-		Route::post('/login',[App\Http\Controllers\JobseekerController::class, 'authenticate'])->name('jobseeker.auth');
-
-		Route::post('/registration', [JobseekerController::class, 'postRegistration'])->name('register.post'); 
-
 		
 
-		Route::get('/register/step1', [JobseekerController::class, 'showStep1'])->name('jobseeker.step1');
-		Route::post('/register/step1', [JobseekerController::class, 'saveStep1'])->name('jobseeker.step1.save');
+		Route::post('/registration', [JobseekerController::class, 'postRegistration'])->name('register.post'); 
+		Route::post('/registration/store', [JobseekerController::class, 'storeJobseekerInformation'])->name('registration.store');
+		Route::get('/jobseeker/sign-in', [JobseekerController::class, 'showSignInForm'])->name('signin.form');
+		
+		Route::post('/jobseeker/login', [JobseekerController::class, 'loginJobseeker'])->name('jobseeker.login.submit');
+		// Route::get('/profile', [JobseekerController::class, 'showProfilePage'])
+		// ->name('jobseeker.profile')
+		// ->middleware('jobseeker.auth');
 
-		Route::get('/register/step2', [JobseekerController::class, 'showStep2'])->name('jobseeker.step2');
-		Route::post('/register/step2', [JobseekerController::class, 'saveStep2'])->name('jobseeker.step2.save');
-
-		Route::get('/register/review', [JobseekerController::class, 'review'])->name('jobseeker.review');
+		// Route::get('/jobseeker/logout', function () {
+		// 	session()->flush(); // or session()->forget(['jobseeker_id', 'email', 'phone_number']);
+		// 	return redirect()->route('jobseeker.sign-in')->with('success', 'Logged out successfully.');
+		// })->name('jobseeker.logout');
 
 
 
@@ -129,6 +131,11 @@ Route::group(['prefix' => 'jobseeker'], function() {
 	
 	Route::group(['middleware' => 'jobseeker.auth'], function(){
 		Route::get('/dashboard',[App\Http\Controllers\JobseekerController::class, 'dashboard'])->name('jobseeker.dashboard');
+
+		Route::post('/login',[App\Http\Controllers\JobseekerController::class, 'authenticate'])->name('jobseeker.auth');
+		Route::get('/profile', [JobseekerController::class, 'showProfilePage'])->name('jobseeker.profile');
+		Route::get('/profile', [JobseekerController::class, 'getJobseekerAllDetails'])->name('jobseeker.profile');
+		
 	});
 });
 

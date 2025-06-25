@@ -5,8 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Session;
 use App\Models\Jobseekers;
+use App\Models\EducationDetails;
+use App\Models\WorkExperience;
+use App\Models\Skills;
+use App\Models\Additionalinfo;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use DB;
 
 class JobseekerController extends Controller
 {
@@ -29,9 +35,11 @@ class JobseekerController extends Controller
              
         ]);
         session([
+            'jobseeker_id' => $jobseekers->id,
             'email' => $request->email,
             'phone_number' => $request->phone_number,
         ]);
+
         return view('site.jobseeker.registration');
     }
   
@@ -39,88 +47,269 @@ class JobseekerController extends Controller
     {
         $email = session('email');
         $phone = session('phone_number');
+        $jobseekerId = session('jobseeker_id');
+        $jobseeker = Jobseekers::find($jobseekerId);
 
-        return view('site.jobseeker.registration', compact('email', 'phone'));
+        return view('site.jobseeker.registration', compact('jobseeker','email','phone'));
     }
 
-
-   
-    
-
-    // public function saveStep1(Request $request)
+    // public function storeJobseekerInformation(Request $request)
     // {
-
     //     $validated = $request->validate([
-    //         'name'     => 'required|string',
-    //         'email'         => 'required|email',
-    //         'gender'        => 'required|string',
-    //         'phone_number'  => 'required|digits:10',
-    //         'dob'           => 'required|date',
-    //         'city'      => 'required|string',
-    //         'address'       => 'required|string',
+    //         'name' => 'required|string',
+    //         'email' => 'required|email',
+    //         'gender' => 'required|string',
+    //         'phone_number' => 'required',
+    //         'dob' => 'required|date',
+    //         'city' => 'required|string',
+    //         'address' => 'required|string',
+
+    //         'high_education' => 'required|string',
+    //         'field_of_study' => 'required|string',
+    //         'institution' => 'required|string',
+    //         'graduate_year' => 'required|string',
+
+    //         'job_role' => 'required|string',
+    //         'organization' => 'required|string',
+    //         'starts_from' => 'required|date',
+    //         'end_to' => 'required|date',
+
+    //         'skills' => 'required|string',
+    //         'interest' => 'required|string',
+    //         'job_category' => 'required|string',
+    //         'website_link' => 'required|string',
+    //         'portfolio_link' => 'required|string',
     //     ]);
 
-    //     Session::put('jobseeker_step1', $validated);
+    //     $jobseeker = Jobseekers::create([
+    //         'name' => $request->name,
+    //         'email' => $request->email,
+    //         'phone_number' => $request->phone_number,
+    //         'date_of_birth' => $request->dob,
+    //         'city' => $request->city,
+    //         'address' => $request->address,
+    //         'gender' => $request->gender,
+    //     ]);
+        // // Insert related education data
+        // EducationDetails::create([
+        //     'user_id' => $jobseeker->id,
+        //     'user_type' => 'jobseeker',
+        //     'high_education' => $request->high_education,
+        //     'field_of_study' => $request->field_of_study,
+        //     'institution' => $request->institution,
+        //     'graduate_year' => $request->graduate_year,
+        // ]);
 
-    //     return response()->json(['message' => 'Step 1 saved']);
+        // WorkExperience::create([
+        //     'user_id' => $jobseeker->id,
+        //     'user_type' => 'jobseeker',
+        //     'job_role' => $request->job_role,
+        //     'organization' => $request->organization,
+        //     'starts_from' => $request->starts_from,
+        //     'end_to' => $request->end_to,
+        // ]);
+
+        // Skills::create([
+        //     'jobseeker_id' => $jobseeker->id,
+        //     'skills' => $request->skills,
+        //     'interest' => $request->interest,
+        //     'job_category' => $request->job_category,
+        //     'website_link' => $request->website_link,
+        //     'portfolio_link' => $request->portfolio_link,
+        // ]);
+    //     return view('site.jobseeker.registration')->with('success', 'Jobseeker and education details saved successfully.');
     // }
-    public function saveStep1(Request $request)
+
+    public function storeJobseekerInformation(Request $request)
     {
-        $validated = $request->validate([
-            'name'          => 'required|string',
-            'email'         => 'required|email',
-            'gender'        => 'required|string',
-            'phone_number'  => 'required|digits:10',
-            'dob'           => 'required|date',
-            'city'          => 'required|string',
-            'address'       => 'required|string',
-        ]);
+        $jobseekerId = session('jobseeker_id');
 
-        $jobseeker = new Jobseeker();
-        $jobseeker->name = $validated['name'];
-        $jobseeker->email = $validated['email'];
-        $jobseeker->gender = $validated['gender'];
-        $jobseeker->phone_code = '+91'; // or get from request if dynamic
-        $jobseeker->phone_number = $validated['phone_number'];
-        $jobseeker->date_of_birth = $validated['dob'];
-        $jobseeker->city = $validated['city'];
-        $jobseeker->address = $validated['address'];
-       // $jobseeker->password = bcrypt('123456'); // or handle password properly
-        $jobseeker->role = 'jobseeker'; // if needed
-        $jobseeker->save();
-
-        return response()->json([
-            'message' => 'Step 1 saved successfully',
-            'id' => $jobseeker->id,
-        ]);
-    }
-    // Save Step 2 (Education Info)
-    public function saveStep2(Request $request)
-    {
-        // Validate education fields
-        $validated = $request->validate([
-            'qualification.*' => 'required|string',
-            'field.*'         => 'required|string',
-            'institution.*'   => 'required|string',
-            'year.*'          => 'required|string',
-        ]);
-
-        // Convert parallel arrays to structured array
-        $educationData = [];
-        foreach ($request->qualification as $index => $qualification) {
-            $educationData[] = [
-                'high_education'  => $qualification,
-                'field_of_study'  => $request->field[$index],
-                'institution'     => $request->institution[$index],
-                'graduate_year'   => $request->year[$index],
-            ];
+        if (!$jobseekerId) {
+            return redirect()->route('signup.form')->with('error', 'Session expired. Please sign up again.');
         }
 
-        Session::put('jobseeker_step2', $educationData);
+        $jobseeker = Jobseekers::find($jobseekerId);
 
-        return redirect()->route('jobseeker.review'); 
+        if (!$jobseeker) {
+            return redirect()->route('signup.form')->with('error', 'Jobseeker not found.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:jobseekers,email,' . $jobseeker->id,
+            'phone_number' => 'required|digits:10|unique:jobseekers,phone_number,' . $jobseeker->id,
+            'dob' => 'required|date',
+            'city' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+            'gender' => 'required|string|in:Male,Female,Other',
+
+            'high_education' => 'required|string|max:255',
+            'field_of_study' => 'nullable|string|max:255',
+            'institution' => 'nullable|string|max:255',
+            'graduate_year' => 'nullable|numeric',
+
+            'job_role' => 'nullable|string|max:255',
+            'organization' => 'nullable|string|max:255',
+            'starts_from' => 'nullable|date',
+            'end_to' => 'nullable|date|after_or_equal:starts_from',
+
+            'skills' => 'nullable|string',
+            'interest' => 'nullable|string',
+            'job_category' => 'nullable|string|max:255',
+            'website_link' => 'nullable|url',
+            'portfolio_link' => 'nullable|url',
+        ]);
+
+        // Update existing jobseeker details
+        $jobseeker->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone_number' => $validated['phone_number'],
+            'date_of_birth' => $validated['dob'],
+            'city' => $validated['city'],
+            'address' => $validated['address'],
+            'gender' => $validated['gender'],
+        ]);
+
+        // Insert related education data
+        EducationDetails::create([
+            'user_id' => $jobseeker->id,
+            'user_type' => 'jobseeker',
+            'high_education' => $request->high_education,
+            'field_of_study' => $request->field_of_study,
+            'institution' => $request->institution,
+            'graduate_year' => $request->graduate_year,
+        ]);
+
+        // Insert work experience
+        WorkExperience::create([
+            'user_id' => $jobseeker->id,
+            'user_type' => 'jobseeker',
+            'job_role' => $request->job_role,
+            'organization' => $request->organization,
+            'starts_from' => $request->starts_from,
+            'end_to' => $request->end_to,
+        ]);
+
+        // Insert skills
+        Skills::create([
+            'jobseeker_id' => $jobseeker->id,
+            'skills' => $request->skills,
+            'interest' => $request->interest,
+            'job_category' => $request->job_category,
+            'website_link' => $request->website_link,
+            'portfolio_link' => $request->portfolio_link,
+        ]);
+
+        // Clear session
+        session()->forget('jobseeker_id');
+
+        return redirect()->route('jobseeker.sign-in')->with('success_popup', true);
+
+    }
+
+    public function showSignInForm()
+    {
+        // if (session()->has('jobseeker_id')) {
+        //     return redirect()->route('jobseeker.profile');
+        // }
+        return view('site.jobseeker.sign-in'); 
+    }
+
+    public function showProfilePage()
+    {
+        $jobseeker = Auth::guard('jobseeker')->user();
+        return view('site.jobseeker.profile', compact('jobseeker'));
+    }
+
+    public function loginJobseeker(Request $request)
+    {
+        $this->validate($request, [
+            'email'     => 'required|email',
+            'password'  => 'required'
+        ]);
+
+        if (Auth::guard('jobseeker')->attempt(['email' => $request->email, 'password' => $request->password, 'status' => "active"])) {
+            return redirect()->route('jobseeker.profile');
+        } else {
+            session()->flash('error', 'Either Email/Password is incorrect');
+            return back()->withInput($request->only('email'));
+        }
+    }
+
+    public function getJobseekerAllDetails(){
+        $jobseeker = Auth::guard('jobseeker')->user();
+        $jobseekerId = $jobseeker->id;
+        $data = DB::table('jobseekers')
+            ->leftJoin('education_details', 'education_details.user_id', '=', 'jobseekers.id')
+            ->leftJoin('work_experience', 'work_experience.user_id', '=', 'jobseekers.id')
+            ->leftJoin('skills', 'skills.jobseeker_id', '=', 'jobseekers.id')
+            ->where('jobseekers.id', $jobseekerId)
+            ->select('jobseekers.*', 'education_details.*','work_experience.*','skills.*', ) 
+            ->first();
+
+         return view('site.jobseeker.profile', compact('data'));
     }
 
 
+
+
+
+
+
+    // public function loginJobseeker( Request $request )
+    // {
+    //     $request->validate([
+    //         'email' => 'required|email',
+    //         'password' => 'required|min:6',
+    //     ]);
+
+    //     $jobseeker = Jobseekers::where('email', $request->email)->first();
+
+    //     if (Auth::guard('jobseeker')->attempt(['email' => $request->email, 'password' => $request->password, 'status' => "active"], $request->get('remember'))) {
+    //         return redirect()->route('jobseeker.profile');
+    //     } else {
+    //         session()->flash('error', 'Either Email/Password is incorrect');
+    //         return back()->withInput($request->only('email'));
+    //     }
+
+    //     // if ($jobseeker && Hash::check($request->password, $jobseeker->password)) {
+    //     //     session([
+    //     //         'jobseeker_id' => $jobseeker->id,
+    //     //         'email' => $jobseeker->email,
+    //     //         'phone_number' => $jobseeker->phone_number
+    //     //     ]);
+
+    //     //     return redirect()->route('jobseeker.profile'); 
+    //     // }
+    //     //return back()->withErrors(['email' => 'Invalid email or password']);
+    // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // public function storeStep2(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'education' => 'required|array',
+    //         'education.*.qualification' => 'required|string',
+    //         'education.*.field' => 'required|string',
+    //         'education.*.institution' => 'required|string',
+    //         'education.*.year' => 'required|string',
+    //     ]);
+
+    //     session(['jobseeker.step2' => $validated['education'], 'current_step' => 3]);
+
+    //     return redirect()->route('jobseeker.form');
+    // }
 
 }
