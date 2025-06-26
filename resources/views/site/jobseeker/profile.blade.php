@@ -1,8 +1,13 @@
 <?php
+$user = Auth()->user();
+$edu = $user->educationDetail;
+$work = $user->workExperience;
+$skills = $user->skills;
 // echo "<pre>";
-// print_r($data);exit;
+// print_r($user);exit;
 // echo "</pre>";
 ?>
+
 @include('site.componants.header')
 <body>
 <div class="loading-area">
@@ -35,15 +40,18 @@
                     <div class="flex gap-4">
                         <img src="https://randomuser.me/api/portraits/men/1.jpg" class="h-20 w-20 rounded-md" alt="Profile" />
                         <div class="mt-1">
-                        <h2 class="text-xl font-semibold">James Walker</h2>
-                        <p class="text-sm text-gray-600">james01@gmail.com</p>
-                        <p class="text-sm text-gray-600">+96673 459 7802</p>
+                        <h2 class="text-xl font-semibold">{{$data->name}}</h2>
+                        <p class="text-sm text-gray-600">{{$data->email}}</p>
+                        <p class="text-sm text-gray-600">{{$data->phone_number}}</p>
                         </div>
                     </div>
-                <button class="border rounded px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 flex items-center gap-2">
-                        <i class="fas fa-power-off"></i>
-                        Logout
-                    </button>
+                    <form action="{{ route('jobseeker.logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="border rounded px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 flex items-center gap-2">
+                            <i class="fas fa-power-off"></i>
+                            Logout
+                        </button>
+                    </form>
                     </div>
                 </div>
 
@@ -165,6 +173,11 @@
                             }
                         }">
                         <h2 class="text-xl font-semibold mb-4">My Profile</h2>
+                        @if(session('success'))
+                            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
+                                {{ session('success') }}
+                            </div>
+                        @endif
                         <div class="border-b flex space-x-6 text-sm font-medium">
                             <button
                             @click="profileTab = 'personal'"
@@ -193,211 +206,303 @@
                             >Additional Information</button>
                         </div>
                         <div class="space-y-4 mt-4">
-                            <!-- Personal Info -->
-                            <div x-show="profileTab === 'personal'" x-cloak class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Name</label>
-                                    <input type="text" name="name" placeholder="Name" class="w-full border rounded px-3 py-2" value="{{ $data->name ?? '' }}" />
-                                </div>
+                            <input type="hidden" name="id" value="{{ $user->id }}">
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Personal Info -->
+                            <form action="{{ route('jobseeker.profile.update') }}" method="POST">
+                                @csrf
+                            
+                                <div x-show="profileTab === 'personal'" x-cloak class="space-y-4">
                                     <div>
-                                        <label class="block text-sm font-medium mb-1">Email address</label>
-                                        <input type="email" name="email" placeholder="Email address"  class="w-full border rounded px-3 py-2"  value="{{ $data->email ?? '' }}"/>
+                                        <label class="block text-sm font-medium mb-1">Name</label>
+                                        <input type="text" name="name" placeholder="Name" class="w-full border rounded px-3 py-2" value="{{ Auth()->user()->name ?? '' }}" />
+                                        @error('name')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
                                     </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium mb-1">Email address</label>
+                                            <input type="email" name="email" placeholder="Email address"  class="w-full border rounded px-3 py-2"  value="{{ Auth()->user()->email ?? '' }}"/>
+                                            @error('email')
+                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium mb-1">Gender</label>
+                                            <select class="w-full border rounded px-3 py-2" name="gender">
+                                                <option>{{Auth()->user()->gender}}</option>
+                                                <option selected>Male</option>
+                                                <option>Female</option>
+                                            </select>
+                                            @error('gender')
+                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium mb-1">Phone number</label>
+                                            <input type="tel" placeholder="Phone number" name="phone_number" class="w-full border rounded px-3 py-2" value="{{ Auth()->user()->phone_number ?? '' }}"/>
+                                            @error('phone_number')
+                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium mb-1">Date of Birth</label>
+                                            <input 
+                                                type="date" 
+                                                name="dob" 
+                                                class="w-full border rounded px-3 py-2" 
+                                                value="{{ optional(Auth()->user())->date_of_birth ? date('Y-m-d', strtotime(Auth()->user()->date_of_birth)) : '' }}" 
+                                            />
+                                            @error('dob')
+                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                    </div>
+
                                     <div>
-                                        <label class="block text-sm font-medium mb-1">Gender</label>
-                                        <select class="w-full border rounded px-3 py-2" >
-                                            <option>{{$data->gender}}</option>
-                                            <option selected>Male</option>
-                                            <option>Female</option>
+                                        <label class="block text-sm font-medium mb-1">Address</label>
+                                        <input type="text" placeholder="Enter address" name="address"  class="w-full border rounded px-3 py-2" value="{{ Auth()->user()->address ?? '' }}"/>
+                                        @error('address')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">City</label>
+                                        <input type="text" name="city" placeholder="Enter city" class="w-full border rounded px-3 py-2" value="{{ Auth()->user()->city ?? '' }}"/>
+                                        @error('city')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="md:col-span-2 flex justify-end gap-4 mt-4">
+                                        <button 
+                                            class="border rounded px-6 py-2 text-sm text-gray-700 hover:bg-gray-100" 
+                                            @click="nextTab"
+                                            x-show="profileTab !== 'additional'"
+                                        >
+                                            Next
+                                        </button>
+                                        <button type="submit" class="bg-blue-700 text-white px-6 py-2 rounded text-sm hover:bg-blue-800">Save</button>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                            <!-- Educational Details -->
+                            <form action="">
+                                <div x-show="profileTab === 'education'" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-4" x-data="yearSelect" x-init="init()">
+
+                                    <!-- Highest Qualification -->
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Highest Qualification</label>
+                                        <select class="w-full border rounded px-3 py-2" name="high_education">
+                                            <option value="">{{ old('high_education', $edu->high_education ?? '') ?: 'Select Qualification' }}</option>
+                                            <option value="High School">High School</option>
+                                            <option value="Diploma">Diploma</option>
+                                            <option value="Bachelor's">Bachelor's</option>
+                                            <option value="Master's">Master's</option>
+                                            <option value="PhD">PhD</option>
+                                            <option value="Other">Other</option>
                                         </select>
                                     </div>
-                                </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Field of Study -->
                                     <div>
-                                        <label class="block text-sm font-medium mb-1">Phone number</label>
-                                        <input type="tel" placeholder="Phone number" name="phone_number" class="w-full border rounded px-3 py-2" value="{{ $data->phone_number ?? '' }}"/>
+                                        <label class="block text-sm font-medium mb-1">Field of Study</label>
+                                        <select class="w-full border rounded px-3 py-2" name="field_of_study">
+                                            <option value="">{{ old('field_of_study', $edu->field_of_study ?? '') ?: 'Select Field' }}</option>
+                                            <option value="Engineering">Engineering</option>
+                                            <option value="Computer Science">Computer Science</option>
+                                            <option value="Business">Business</option>
+                                            <option value="Medicine">Medicine</option>
+                                            <option value="Arts">Arts</option>
+                                            <option value="Law">Law</option>
+                                            <option value="Other">Other</option>
+                                        </select>
                                     </div>
+
+                                    <!-- Institution Name -->
                                     <div>
-                                        <label class="block text-sm font-medium mb-1">Date of Birth</label>
-                                        <input type="date" name="dob" class="w-full border rounded px-3 py-2" value="{{ $data->date_of_birth ?? '' }}" />
+                                        <label class="block text-sm font-medium mb-1">Institution Name</label>
+                                        <input type="text" name="institution" placeholder="Enter Institution Name" class="w-full border rounded px-3 py-2"
+                                            value="{{ old('institution', $edu->institution ?? '') }}">
+                                    </div>
+
+                                    <!-- Graduation Year -->
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Graduation Year</label>
+                                        <select class="w-full border rounded px-3 py-2" name="graduate_year">
+                                            <option value="">{{ old('graduate_year', $edu->graduate_year ?? '') ?: 'Select Year' }}</option>
+                                            <template x-for="year in years" :key="year">
+                                                <option :value="year" x-text="year"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="flex justify-end gap-4 mt-6">
+                                        <button class="border rounded px-6 py-2 text-sm text-gray-700 hover:bg-gray-100" @click="nextTab"
+                                            x-show="profileTab !== 'additional'">
+                                            Next
+                                        </button>
+                                        <button class="bg-blue-700 text-white px-6 py-2 rounded text-sm hover:bg-blue-800">Save</button>
                                     </div>
                                 </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Address</label>
-                                    <input type="text" placeholder="Enter address" name="address"  class="w-full border rounded px-3 py-2" value="{{ $data->address ?? '' }}"/>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">City</label>
-                                    <input type="text" name="city" placeholder="Enter city" class="w-full border rounded px-3 py-2" value="{{ $data->city ?? '' }}"/>
-                                </div>
-                            </div>
-
-
-                            <!-- Educational Details -->
-                           <div x-show="profileTab === 'education'" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-4" x-data="yearSelect" x-init="init()">
-                                <!-- Highest Qualification -->
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Highest Qualification</label>
-                                    <select class="w-full border rounded px-3 py-2" name="high_education">
-                                        <option value="">{{ $data->high_education ?? 'Select Qualification' }}</option>
-                                        <option value="High School">High School</option>
-                                        <option value="Diploma">Diploma</option>
-                                        <option value="Bachelor's">Bachelor's</option>
-                                        <option value="Master's">Master's</option>
-                                        <option value="PhD">PhD</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-
-                                <!-- Field of Study -->
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Field of Study</label>
-                                    <select class="w-full border rounded px-3 py-2" name="field_of_study">
-                                        <option value="">{{ $data->field_of_study ?? 'Select Field' }}</option>
-                                        <option value="Engineering">Engineering</option>
-                                        <option value="Computer Science">Computer Science</option>
-                                        <option value="Business">Business</option>
-                                        <option value="Medicine">Medicine</option>
-                                        <option value="Arts">Arts</option>
-                                        <option value="Law">Law</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-
-                                <!-- Institution Name -->
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Institution Name</label>
-                                    <input type="text" name="institution" placeholder="Enter Institution Name" class="w-full border rounded px-3 py-2" value="{{ $data->institution ?? '' }}">
-                                </div>
-
-                                <!-- Graduation Year -->
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Graduation Year</label>
-                                    <select class="w-full border rounded px-3 py-2" name="graduate_year">
-                                        <option value="">{{ $data->graduate_year ?? 'Select Year' }}</option>
-                                        <template x-for="year in years" :key="year">
-                                            <option :value="year" x-text="year"></option>
-                                        </template>
-                                    </select>
-                                </div>
-
-                            </div>
+                            </form>    
 
 
                             <!-- Work Experience -->
-                            <div x-show="profileTab === 'work'" x-cloak x-data="workExperience()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <form action="">
+                                <div x-show="profileTab === 'work'" x-cloak x-data="workExperience()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                                <!-- Job Role -->
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Job Role</label>
-                                    <input type="text" placeholder="Enter Job Role" name="job_role" class="w-full border rounded px-3 py-2" value="{{ $data->job_role ?? '' }}"/>
+                                    <!-- Job Role -->
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Job Role</label>
+                                        <input type="text" placeholder="Enter Job Role" name="job_role" class="w-full border rounded px-3 py-2"
+                                            value="{{ old('job_role', $work->job_role ?? '') }}" />
+                                    </div>
+
+                                    <!-- Organization -->
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Organization</label>
+                                        <input type="text" name="organization" placeholder="Enter Organization Name"
+                                            class="w-full border rounded px-3 py-2"
+                                            value="{{ old('organization', $work->organization ?? '') }}" />
+                                    </div>
+
+                                    <!-- Started From -->
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Started From</label>
+                                        <input type="date" name="starts_from" class="w-full border rounded px-3 py-2"
+                                            value="{{ old('starts_from', $work->starts_from ?? '') }}" />
+                                    </div>
+
+                                    <!-- To + Checkbox -->
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">To</label>
+                                        <input type="date" class="w-full border rounded px-3 py-2 mb-2" :disabled="currentlyWorking"
+                                            name="end_to" value="{{ old('end_to', $work->end_to ?? '') }}" />
+                                        <label class="inline-flex items-center space-x-2">
+                                            <input type="checkbox" x-model="currentlyWorking" />
+                                            <span>I currently work here</span>
+                                        </label>
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="flex justify-end gap-4 mt-6">
+                                        <button class="border rounded px-6 py-2 text-sm text-gray-700 hover:bg-gray-100" @click="nextTab"
+                                            x-show="profileTab !== 'additional'">
+                                            Next
+                                        </button>
+                                        <button class="bg-blue-700 text-white px-6 py-2 rounded text-sm hover:bg-blue-800">Save</button>
+                                    </div>
                                 </div>
-
-                                <!-- Organization -->
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Organization</label>
-                                    <input type="text" name="organization" placeholder="Enter Organization Name" class="w-full border rounded px-3 py-2" value="{{ $data->organization ?? '' }}"/>
-                                </div>
-
-                                <!-- Started From -->
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Started From</label>
-                                    <input type="date" name="starts_from" class="w-full border rounded px-3 py-2" value="{{ $data->starts_from ?? '' }}"/>
-                                </div>
-
-                                <!-- To + Checkbox -->
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">To</label>
-                                    <input
-                                        type="date"
-                                        class="w-full border rounded px-3 py-2 mb-2"
-                                        :disabled="currentlyWorking"
-                                        name="end_to"
-                                        value="{{ $data->end_to ?? '' }}"
-                                    />
-                                    <label class="inline-flex items-center space-x-2">
-                                        <input type="checkbox" x-model="currentlyWorking" />
-                                        <span>I currently work here</span>
-                                    </label>
-                                </div>
-
-                            </div>
+                            </form>  
 
 
                             <!-- Skills & Training -->
-                            <div x-show="profileTab === 'skills'" x-cloak class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Skills</label>
-                                <input type="text" name="skills"  placeholder="E.g., JavaScript, Excel, Marketing" class="w-full border rounded px-3 py-2" value="{{ $data->skills ?? '' }}"/>
-                            </div>
+                            <form action="" method="POST">
+                                @csrf
+                                <div x-show="profileTab === 'skills'" x-cloak class="space-y-4">
 
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Area of Interests</label>
-                                <input type="text" name="interest" placeholder="E.g., Data Science, Graphic Design" class="w-full border rounded px-3 py-2" value="{{ $data->interest ?? '' }}"/>
-                            </div>
+                                    <!-- Skills -->
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Skills</label>
+                                        <input type="text" name="skills" placeholder="E.g., JavaScript, Excel, Marketing"
+                                            class="w-full border rounded px-3 py-2"
+                                            value="{{ old('skills', $skills->skills ?? '') }}" />
+                                    </div>
 
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Job Categories</label>
-                                <select class="w-full border rounded px-3 py-2" name="job_category">
-                                <!-- <option value="">Select Job Category</option> -->
-                                <option value="">{{$data->job_category}}</option>
-                                <option value="IT & Software">IT & Software</option>
-                                <option value="Sales & Marketing">Sales & Marketing</option>
-                                <option value="Design & Creative">Design & Creative</option>
-                                <option value="Finance & Accounting">Finance & Accounting</option>
-                                <option value="Education & Training">Education & Training</option>
-                                <option value="Healthcare">Healthcare</option>
-                                <option value="Other">Other</option>
-                                </select>
-                            </div>
+                                    <!-- Area of Interests -->
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Area of Interests</label>
+                                        <input type="text" name="interest" placeholder="E.g., Data Science, Graphic Design"
+                                            class="w-full border rounded px-3 py-2"
+                                            value="{{ old('interest', $skills->interest ?? '') }}" />
+                                    </div>
 
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Website Link</label>
-                                <input type="url" name="website_link" placeholder="https://yourwebsite.com" class="w-full border rounded px-3 py-2" value="{{ $data->website_link ?? '' }}"/>
-                            </div>
+                                    <!-- Job Categories -->
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Job Categories</label>
+                                        <select class="w-full border rounded px-3 py-2" name="job_category">
+                                            <option value="">{{ old('job_category', $skills->job_category ?? 'Select Job Category') }}</option>
+                                            <option value="IT & Software">IT & Software</option>
+                                            <option value="Sales & Marketing">Sales & Marketing</option>
+                                            <option value="Design & Creative">Design & Creative</option>
+                                            <option value="Finance & Accounting">Finance & Accounting</option>
+                                            <option value="Education & Training">Education & Training</option>
+                                            <option value="Healthcare">Healthcare</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
 
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Portfolio Link</label>
-                                <input type="url" name="portfolio_link" placeholder="https://yourportfolio.com" class="w-full border rounded px-3 py-2" value="{{ $data->portfolio_link ?? '' }}"/>
-                            </div>
-                            </div>
+                                    <!-- Website Link -->
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Website Link</label>
+                                        <input type="url" name="website_link" placeholder="https://yourwebsite.com"
+                                            class="w-full border rounded px-3 py-2"
+                                            value="{{ old('website_link', $skills->website_link ?? '') }}" />
+                                    </div>
+
+                                    <!-- Portfolio Link -->
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Portfolio Link</label>
+                                        <input type="url" name="portfolio_link" placeholder="https://yourportfolio.com"
+                                            class="w-full border rounded px-3 py-2"
+                                            value="{{ old('portfolio_link', $skills->portfolio_link ?? '') }}" />
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="flex justify-end gap-4 mt-6">
+                                        <button class="border rounded px-6 py-2 text-sm text-gray-700 hover:bg-gray-100" @click="nextTab"
+                                            x-show="profileTab !== 'additional'">
+                                            Next
+                                        </button>
+                                        <button class="bg-blue-700 text-white px-6 py-2 rounded text-sm hover:bg-blue-800">Save</button>
+                                    </div>
+                                </div>
+                            </form>  
 
                             <!-- Additional Info -->
                             <div x-show="profileTab === 'additional'" x-cloak class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Upload resume</label>
-                                <div class="flex gap-2 items-center">
-                                <input type="file" class="border rounded-md p-2 w-full text-sm" />
-                                <button
-                                    class="bg-red-500 text-white px-4 py-2 rounded-md text-sm whitespace-nowrap w-38"
-                                    type="button"
-                                >
-                                    Remove
-                                </button>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Upload resume</label>
+                                    <div class="flex gap-2 items-center">
+                                        <input type="file" class="border rounded-md p-2 w-full text-sm" />
+                                        <button
+                                            class="bg-red-500 text-white px-4 py-2 rounded-md text-sm whitespace-nowrap w-38"
+                                            type="button"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Upload Profile</label>
-                                <div class="flex gap-2 items-center">
-                                <input type="file" class="border rounded-md p-2 w-full text-sm" />
-                                <button
-                                    class="bg-red-500 text-white px-4 py-2 rounded-md text-sm whitespace-nowrap w-38"
-                                    type="button"
-                                >
-                                    Remove
-                                </button>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Upload Profile</label>
+                                    <div class="flex gap-2 items-center">
+                                        <input type="file" class="border rounded-md p-2 w-full text-sm" />
+                                        <button
+                                            class="bg-red-500 text-white px-4 py-2 rounded-md text-sm whitespace-nowrap w-38"
+                                            type="button"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
+                                <div class="flex justify-end gap-4 mt-6">
+                                <button class="bg-blue-700 text-white px-6 py-2 rounded text-sm hover:bg-blue-800">Save</button>
+                                </div>
                             </div>
 
                         </div>
-                        <div class="flex justify-end gap-4 mt-6">
+                        <!-- <div class="flex justify-end gap-4 mt-6">
                             <button 
                                 class="border rounded px-6 py-2 text-sm text-gray-700 hover:bg-gray-100" 
                                 @click="nextTab"
@@ -406,7 +511,7 @@
                                 Next
                             </button>
                             <button class="bg-blue-700 text-white px-6 py-2 rounded text-sm hover:bg-blue-800">Save</button>
-                        </div>
+                        </div> -->
                     </div>
 
                     <div x-show="tab === 'cart'" x-cloak>

@@ -210,16 +210,13 @@ class JobseekerController extends Controller
 
     public function showSignInForm()
     {
-        // if (session()->has('jobseeker_id')) {
-        //     return redirect()->route('jobseeker.profile');
-        // }
         return view('site.jobseeker.sign-in'); 
     }
 
     public function showProfilePage()
     {
-        $jobseeker = Auth::guard('jobseeker')->user();
-        return view('site.jobseeker.profile', compact('jobseeker'));
+        //$jobseeker = Auth::guard('jobseeker')->user();
+        return view('site.jobseeker.profile');
     }
 
     public function loginJobseeker(Request $request)
@@ -252,40 +249,71 @@ class JobseekerController extends Controller
     }
 
 
+    
+    public function logoutJobseeker(Request $request)
+    {
+        Auth::guard('jobseeker')->logout();
+       
+        $request->session()->invalidate(); 
+        $request->session()->regenerateToken(); 
+
+        return redirect()->route('jobseeker.sign-in')->with('success', 'Logged out successfully');
+    }
 
 
 
 
-
-    // public function loginJobseeker( Request $request )
-    // {
-    //     $request->validate([
-    //         'email' => 'required|email',
-    //         'password' => 'required|min:6',
+    // public function updatePersonalInfo(Request $request){
+    //     $user = auth()->user();
+    //     $validated = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'email' => 'required|email|unique:jobseeker,email'. $user,
+    //         'gender' => 'required|string|in:Male,Female,Other',
+    //         'phone_number' => 'required|digits:10',
+    //         'dob' => 'required|date',
+    //         'city' => 'required|string|max:255',
+    //         'address' => 'required|string|max:500',
     //     ]);
+    //     $user->update([
+    //         'name' => $request->name,
+    //         'email' => $request->email,
+    //         'gender' => $request->gender,
+    //         'phone_number' => $request->phone_number,
+    //         'dob' => $request->dob,
+    //         'city' => $request->city,
+    //         'address' => $request->address,
+    //         // Add other fields here
+    //     ]);
+    //     dd($user);exit;
+    // } 
 
-    //     $jobseeker = Jobseekers::where('email', $request->email)->first();
+    public function updatePersonalInfo(Request $request)
+    {
+        //dd($request->all());exit;
+        $user = auth()->user();
+       
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:jobseekers,email,' . $user->id,
+            'gender' => 'required|string|in:Male,Female,Other',
+            'phone_number' => 'required|digits:10',
+            'dob' => 'required|date',
+            'city' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+        ]);
 
-    //     if (Auth::guard('jobseeker')->attempt(['email' => $request->email, 'password' => $request->password, 'status' => "active"], $request->get('remember'))) {
-    //         return redirect()->route('jobseeker.profile');
-    //     } else {
-    //         session()->flash('error', 'Either Email/Password is incorrect');
-    //         return back()->withInput($request->only('email'));
-    //     }
-
-    //     // if ($jobseeker && Hash::check($request->password, $jobseeker->password)) {
-    //     //     session([
-    //     //         'jobseeker_id' => $jobseeker->id,
-    //     //         'email' => $jobseeker->email,
-    //     //         'phone_number' => $jobseeker->phone_number
-    //     //     ]);
-
-    //     //     return redirect()->route('jobseeker.profile'); 
-    //     // }
-    //     //return back()->withErrors(['email' => 'Invalid email or password']);
-    // }
-
-
+        $user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone_number' => $validated['phone_number'],
+            'date_of_birth' => $validated['dob'],
+            'city' => $validated['city'],
+            'address' => $validated['address'],
+            'gender' => $validated['gender'],
+        ]);
+        
+        return redirect()->back()->with('success', 'Personal information updated successfully!');
+    }
 
 
 

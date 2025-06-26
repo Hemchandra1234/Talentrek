@@ -115,16 +115,6 @@ Route::group(['prefix' => 'jobseeker'], function() {
 		Route::get('/jobseeker/sign-in', [JobseekerController::class, 'showSignInForm'])->name('signin.form');
 		
 		Route::post('/jobseeker/login', [JobseekerController::class, 'loginJobseeker'])->name('jobseeker.login.submit');
-		// Route::get('/profile', [JobseekerController::class, 'showProfilePage'])
-		// ->name('jobseeker.profile')
-		// ->middleware('jobseeker.auth');
-
-		// Route::get('/jobseeker/logout', function () {
-		// 	session()->flush(); // or session()->forget(['jobseeker_id', 'email', 'phone_number']);
-		// 	return redirect()->route('jobseeker.sign-in')->with('success', 'Logged out successfully.');
-		// })->name('jobseeker.logout');
-
-
 
 
 	});
@@ -135,6 +125,8 @@ Route::group(['prefix' => 'jobseeker'], function() {
 		Route::post('/login',[App\Http\Controllers\JobseekerController::class, 'authenticate'])->name('jobseeker.auth');
 		Route::get('/profile', [JobseekerController::class, 'showProfilePage'])->name('jobseeker.profile');
 		Route::get('/profile', [JobseekerController::class, 'getJobseekerAllDetails'])->name('jobseeker.profile');
+		Route::post('/logout',[App\Http\Controllers\JobseekerController::class, 'logoutJobseeker'])->name('jobseeker.logout');
+		Route::post('/profile/update-personal-info',[App\Http\Controllers\JobseekerController::class, 'updatePersonalInfo'])->name('jobseeker.profile.update');
 		
 	});
 });

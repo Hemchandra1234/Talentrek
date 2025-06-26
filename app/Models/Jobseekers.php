@@ -49,4 +49,17 @@ class Jobseekers extends Authenticatable
     {
         return $this->hasMany(EducationDetails::class, 'user_id');
     }
+    public function educationDetail()
+    {
+        return $this->hasOne(EducationDetails::class, 'user_id', 'id');
+    }
+    public function workExperience()
+    {
+        return $this->hasOne(WorkExperience::class, 'user_id', 'id');
+    }
+    public function skills()
+    {
+        return $this->hasOne(Skills::class, 'jobseeker_id', 'id');
+    }
+
 }
