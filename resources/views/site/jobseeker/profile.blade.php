@@ -174,10 +174,25 @@ $skills = $user->skills;
                         }">
                         <h2 class="text-xl font-semibold mb-4">My Profile</h2>
                         @if(session('success'))
-                            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4">
-                                {{ session('success') }}
-                            </div>
+                            <span id="successMessage" class="inline-flex items-center bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4 gap-2">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="text-sm font-medium">{{ session('success') }}</span>
+                            </span>
+
+                            <script>
+                                setTimeout(() => {
+                                    const el = document.getElementById('successMessage');
+                                    if (el) {
+                                        el.classList.add('opacity-0'); 
+                                        setTimeout(() => el.style.display = 'none', 2000); 
+                                    }
+                                }, 10000); 
+                            </script>
                         @endif
+
+
                         <div class="border-b flex space-x-6 text-sm font-medium">
                             <button
                             @click="profileTab = 'personal'"
@@ -253,8 +268,8 @@ $skills = $user->skills;
                                         <div>
                                             <label class="block text-sm font-medium mb-1">Date of Birth</label>
                                             <input 
-                                                type="date" 
                                                 name="dob" 
+                                                id="dob" 
                                                 class="w-full border rounded px-3 py-2" 
                                                 value="{{ optional(Auth()->user())->date_of_birth ? date('Y-m-d', strtotime(Auth()->user()->date_of_birth)) : '' }}" 
                                             />
@@ -283,6 +298,7 @@ $skills = $user->skills;
 
                                     <div class="md:col-span-2 flex justify-end gap-4 mt-4">
                                         <button 
+                                            type="button"
                                             class="border rounded px-6 py-2 text-sm text-gray-700 hover:bg-gray-100" 
                                             @click="nextTab"
                                             x-show="profileTab !== 'additional'"
@@ -295,70 +311,90 @@ $skills = $user->skills;
                             </form>
                             
                             <!-- Educational Details -->
-                            <form action="">
+                            <form action="{{ route('jobseeker.education.update') }}" method="POST">
+                                @csrf
                                 <div x-show="profileTab === 'education'" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-4" x-data="yearSelect" x-init="init()">
 
                                     <!-- Highest Qualification -->
                                     <div>
                                         <label class="block text-sm font-medium mb-1">Highest Qualification</label>
                                         <select class="w-full border rounded px-3 py-2" name="high_education">
-                                            <option value="">{{ old('high_education', $edu->high_education ?? '') ?: 'Select Qualification' }}</option>
-                                            <option value="High School">High School</option>
-                                            <option value="Diploma">Diploma</option>
-                                            <option value="Bachelor's">Bachelor's</option>
-                                            <option value="Master's">Master's</option>
-                                            <option value="PhD">PhD</option>
-                                            <option value="Other">Other</option>
+                                            <option value="">Select Qualification</option>
+                                            @foreach(['High School', 'Diploma', "Bachelor's", "Master's", 'PhD', 'Other'] as $qualification)
+                                                <option value="{{ $qualification }}"
+                                                    {{ old('high_education', $edu->high_education ?? '') == $qualification ? 'selected' : '' }}>
+                                                    {{ $qualification }}
+                                                </option>
+                                            @endforeach
                                         </select>
+                                        @error('high_education')
+                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
                                     </div>
 
                                     <!-- Field of Study -->
                                     <div>
                                         <label class="block text-sm font-medium mb-1">Field of Study</label>
                                         <select class="w-full border rounded px-3 py-2" name="field_of_study">
-                                            <option value="">{{ old('field_of_study', $edu->field_of_study ?? '') ?: 'Select Field' }}</option>
-                                            <option value="Engineering">Engineering</option>
-                                            <option value="Computer Science">Computer Science</option>
-                                            <option value="Business">Business</option>
-                                            <option value="Medicine">Medicine</option>
-                                            <option value="Arts">Arts</option>
-                                            <option value="Law">Law</option>
-                                            <option value="Other">Other</option>
+                                            <option value="">Select Field</option>
+                                            @foreach(['Engineering', 'Computer Science', 'Business', 'Medicine', 'Arts', 'Law', 'Other'] as $field)
+                                                <option value="{{ $field }}"
+                                                    {{ old('field_of_study', $edu->field_of_study ?? '') == $field ? 'selected' : '' }}>
+                                                    {{ $field }}
+                                                </option>
+                                            @endforeach
                                         </select>
+                                        @error('field_of_study')
+                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
                                     </div>
 
                                     <!-- Institution Name -->
                                     <div>
                                         <label class="block text-sm font-medium mb-1">Institution Name</label>
-                                        <input type="text" name="institution" placeholder="Enter Institution Name" class="w-full border rounded px-3 py-2"
+                                        <input type="text" name="institution" placeholder="Enter Institution Name"
+                                            class="w-full border rounded px-3 py-2"
                                             value="{{ old('institution', $edu->institution ?? '') }}">
+                                        @error('institution')
+                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror    
                                     </div>
 
                                     <!-- Graduation Year -->
                                     <div>
                                         <label class="block text-sm font-medium mb-1">Graduation Year</label>
                                         <select class="w-full border rounded px-3 py-2" name="graduate_year">
-                                            <option value="">{{ old('graduate_year', $edu->graduate_year ?? '') ?: 'Select Year' }}</option>
-                                            <template x-for="year in years" :key="year">
-                                                <option :value="year" x-text="year"></option>
-                                            </template>
+                                            <option value="">Select Year</option>
+                                            @foreach(['2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015', '2010-2014', 'Before 2010'] as $year)
+                                                <option value="{{ $year }}"
+                                                    {{ old('graduate_year', $edu->graduate_year ?? '') == $year ? 'selected' : '' }}>
+                                                    {{ $year }}
+                                                </option>
+                                            @endforeach
                                         </select>
+                                        @error('graduate_year')
+                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
                                     </div>
 
                                     <!-- Buttons -->
-                                    <div class="flex justify-end gap-4 mt-6">
-                                        <button class="border rounded px-6 py-2 text-sm text-gray-700 hover:bg-gray-100" @click="nextTab"
-                                            x-show="profileTab !== 'additional'">
+                                    <div class="flex justify-end gap-4 mt-6 md:col-span-2 w-full px-3 py-2 ">
+                                        <button type="button" class="border rounded px-6 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                @click="nextTab" x-show="profileTab !== 'additional'">
                                             Next
                                         </button>
-                                        <button class="bg-blue-700 text-white px-6 py-2 rounded text-sm hover:bg-blue-800">Save</button>
+                                        <button type="submit" class="bg-blue-700 text-white px-6 py-2 rounded text-sm hover:bg-blue-800">
+                                            Save
+                                        </button>
                                     </div>
                                 </div>
-                            </form>    
+                            </form>
+  
 
 
                             <!-- Work Experience -->
-                            <form action="">
+                            <form action="{{ route('jobseeker.workexprience.update') }}" method="POST">
+                                @csrf
                                 <div x-show="profileTab === 'work'" x-cloak x-data="workExperience()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                                     <!-- Job Role -->
@@ -366,6 +402,9 @@ $skills = $user->skills;
                                         <label class="block text-sm font-medium mb-1">Job Role</label>
                                         <input type="text" placeholder="Enter Job Role" name="job_role" class="w-full border rounded px-3 py-2"
                                             value="{{ old('job_role', $work->job_role ?? '') }}" />
+                                        @error('job_role')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror    
                                     </div>
 
                                     <!-- Organization -->
@@ -374,40 +413,67 @@ $skills = $user->skills;
                                         <input type="text" name="organization" placeholder="Enter Organization Name"
                                             class="w-full border rounded px-3 py-2"
                                             value="{{ old('organization', $work->organization ?? '') }}" />
+                                        @error('organization')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror      
                                     </div>
 
                                     <!-- Started From -->
                                     <div>
                                         <label class="block text-sm font-medium mb-1">Started From</label>
-                                        <input type="date" name="starts_from" class="w-full border rounded px-3 py-2"
+                                        <input  name="starts_from" id="starts_from" class="w-full border rounded px-3 py-2"
                                             value="{{ old('starts_from', $work->starts_from ?? '') }}" />
+                                        @error('starts_from')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror        
                                     </div>
 
                                     <!-- To + Checkbox -->
-                                    <div>
+                                    <div x-data="{ currentlyWorking: '{{ $work->end_to ?? '' }}' === 'Work here' }">
                                         <label class="block text-sm font-medium mb-1">To</label>
-                                        <input type="date" class="w-full border rounded px-3 py-2 mb-2" :disabled="currentlyWorking"
-                                            name="end_to" value="{{ old('end_to', $work->end_to ?? '') }}" />
-                                        <label class="inline-flex items-center space-x-2">
-                                            <input type="checkbox" x-model="currentlyWorking" />
+                                        <input 
+                                            
+                                            class="w-full border rounded px-3 py-2 mb-2" 
+                                            name="end_to"
+                                            id="end_to"
+                                            :disabled="currentlyWorking"
+                                            :value="currentlyWorking ? '' : '{{ old('end_to', $work->end_to !== 'Work here' ? $work->end_to : '') }}'"
+                                        />
+
+                                        @error('end_to')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror     
+
+                                        <label class="inline-flex items-center space-x-2 mt-3">
+                                            <input 
+                                                type="checkbox" 
+                                                x-model="currentlyWorking" 
+                                                name="currently_working" 
+                                                value="1" 
+                                                :checked="currentlyWorking"
+                                            />
                                             <span>I currently work here</span>
                                         </label>
                                     </div>
 
+
+
                                     <!-- Buttons -->
-                                    <div class="flex justify-end gap-4 mt-6">
-                                        <button class="border rounded px-6 py-2 text-sm text-gray-700 hover:bg-gray-100" @click="nextTab"
-                                            x-show="profileTab !== 'additional'">
+                                    <div class="flex justify-end gap-4 mt-6 md:col-span-2 w-full px-3 py-2 ">
+                                        <button type="button" class="border rounded px-6 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                @click="nextTab" x-show="profileTab !== 'additional'">
                                             Next
                                         </button>
-                                        <button class="bg-blue-700 text-white px-6 py-2 rounded text-sm hover:bg-blue-800">Save</button>
+                                        <button type="submit" class="bg-blue-700 text-white px-6 py-2 rounded text-sm hover:bg-blue-800">
+                                            Save
+                                        </button>
                                     </div>
                                 </div>
                             </form>  
 
 
                             <!-- Skills & Training -->
-                            <form action="" method="POST">
+                            <form action="{{ route('jobseeker.skill.update') }}" method="POST">
                                 @csrf
                                 <div x-show="profileTab === 'skills'" x-cloak class="space-y-4">
 
@@ -417,6 +483,9 @@ $skills = $user->skills;
                                         <input type="text" name="skills" placeholder="E.g., JavaScript, Excel, Marketing"
                                             class="w-full border rounded px-3 py-2"
                                             value="{{ old('skills', $skills->skills ?? '') }}" />
+                                        @error('skills')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror  
                                     </div>
 
                                     <!-- Area of Interests -->
@@ -425,6 +494,9 @@ $skills = $user->skills;
                                         <input type="text" name="interest" placeholder="E.g., Data Science, Graphic Design"
                                             class="w-full border rounded px-3 py-2"
                                             value="{{ old('interest', $skills->interest ?? '') }}" />
+                                        @error('interest')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror    
                                     </div>
 
                                     <!-- Job Categories -->
@@ -440,6 +512,9 @@ $skills = $user->skills;
                                             <option value="Healthcare">Healthcare</option>
                                             <option value="Other">Other</option>
                                         </select>
+                                        @error('job_category')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
                                     </div>
 
                                     <!-- Website Link -->
@@ -448,6 +523,9 @@ $skills = $user->skills;
                                         <input type="url" name="website_link" placeholder="https://yourwebsite.com"
                                             class="w-full border rounded px-3 py-2"
                                             value="{{ old('website_link', $skills->website_link ?? '') }}" />
+                                        @error('website_link')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror    
                                     </div>
 
                                     <!-- Portfolio Link -->
@@ -456,15 +534,18 @@ $skills = $user->skills;
                                         <input type="url" name="portfolio_link" placeholder="https://yourportfolio.com"
                                             class="w-full border rounded px-3 py-2"
                                             value="{{ old('portfolio_link', $skills->portfolio_link ?? '') }}" />
+                                        @error('portfolio_link')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                        @enderror    
                                     </div>
 
                                     <!-- Buttons -->
                                     <div class="flex justify-end gap-4 mt-6">
-                                        <button class="border rounded px-6 py-2 text-sm text-gray-700 hover:bg-gray-100" @click="nextTab"
+                                        <button type="button" class="border rounded px-6 py-2 text-sm text-gray-700 hover:bg-gray-100" @click="nextTab"
                                             x-show="profileTab !== 'additional'">
                                             Next
                                         </button>
-                                        <button class="bg-blue-700 text-white px-6 py-2 rounded text-sm hover:bg-blue-800">Save</button>
+                                        <button type="submit" class="bg-blue-700 text-white px-6 py-2 rounded text-sm hover:bg-blue-800">Save</button>
                                     </div>
                                 </div>
                             </form>  
@@ -1066,7 +1147,28 @@ $skills = $user->skills;
         }
     }
 </script>
-
+<script>
+    $(document).ready(function () {
+        $('#dob').datepicker({
+            format: 'yyyy-mm-dd',
+            endDate: new Date(),
+            autoclose: true,
+            todayHighlight: true
+        });
+        $('#starts_from').datepicker({
+            format: 'yyyy-mm-dd',
+            endDate: new Date(),
+            autoclose: true,
+            todayHighlight: true
+        });
+         $('#end_to').datepicker({
+            format: 'yyyy-mm-dd',
+            endDate: new Date(),
+            autoclose: true,
+            todayHighlight: true
+        });
+    });
+</script>
 
 
 

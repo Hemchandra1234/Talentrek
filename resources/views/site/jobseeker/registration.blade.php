@@ -75,7 +75,7 @@
                                      
                                         <div>
                                             <label class="block mb-1 text-sm font-medium">Full name</label>
-                                            <input type="text" name="name" class="w-full border rounded-md p-2" placeholder="Enter full name" />
+                                            <input type="text" name="name" class="w-full border rounded-md p-2" placeholder="Enter full name" value="{{ old('name') }}"/>
                                             @error('name')
                                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                             @enderror
@@ -91,10 +91,11 @@
                                             <div>
                                                 <label class="block mb-1 text-sm font-medium">Gender</label>
                                                 <select name="gender" class="w-full border rounded-md p-2">
-                                                    <option>Select gender</option>
-                                                    <option>Male</option>
-                                                    <option>Female</option>
+                                                    <option value="">Select gender</option>
+                                                    <option value="Male" {{ old('gender') == 'Male' ? 'selected' : '' }}>Male</option>
+                                                    <option value="Female" {{ old('gender') == 'Female' ? 'selected' : '' }}>Female</option>
                                                 </select>
+
                                             </div>
                                             @error('gender')
                                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -113,7 +114,7 @@
                                             </div>
                                             <div>
                                                 <label class="block mb-1 text-sm font-medium">Date of birth</label>
-                                                <input  type="date" name="dob"  id="dob"  class="w-full border rounded-md p-2" />
+                                                <input name="dob"  id="dob"  class="w-full border rounded-md p-2" value="{{ old('dob') }}"/>
                                                 @error('dob')
                                                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                                 @enderror
@@ -121,14 +122,14 @@
                                         </div>
                                         <div>
                                             <label class="block mb-1 text-sm font-medium">Location</label>
-                                            <input type="text" name="city" class="w-full border rounded-md p-2" placeholder="City or State" />
+                                            <input type="text" name="city" class="w-full border rounded-md p-2" placeholder="City or State" value="{{ old('city') }}"/>
                                             @error('city')
                                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>
                                         <div>
                                             <label class="block mb-1 text-sm font-medium">Address</label>
-                                            <input type="text" name="address" class="w-full border rounded-md p-2" placeholder="Street, Area, ZIP" />
+                                            <input type="text" name="address" class="w-full border rounded-md p-2" placeholder="Street, Area, ZIP" value="{{ old('address') }}"/>
                                             @error('address')
                                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                             @enderror
@@ -143,73 +144,79 @@
                                     <div id="step-2" class="hidden">
                                       
                                         <!-- Container for multiple education entries -->
+                                        @php
+                                            $educationCount = count(old('high_education', [null]));
+                                        @endphp
+
                                         <div id="education-container" class="col-span-2 grid grid-cols-2 gap-4">
-                                            <div class="education-entry grid grid-cols-2 gap-4 col-span-2 p-4 rounded-md relative">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Highest qualification</label>
-                                                <select name="high_education" class="w-full border border-gray-300 rounded-md p-2">
-                                                <option>Select highest qualification</option>
-                                                <option value="high_school">High School</option>
-                                                <option value="diploma">Diploma</option>
-                                                <option value="bachelor">Bachelor's Degree</option>
-                                                <option value="master">Master's Degree</option>
-                                                <option value="phd">Ph.D.</option>
-                                                </select>
-                                                @error('high_education')
-                                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                                @enderror
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Field of study</label>
-                                                <select name="field_of_study" class="w-full border border-gray-300 rounded-md p-2">
-                                                <option>Select field of study</option>
-                                                <option value="engineering">Engineering</option>
-                                                <option value="science">Science</option>
-                                                <option value="commerce">Commerce</option>
-                                                <option value="arts">Arts</option>
-                                                <option value="medicine">Medicine</option>
-                                                <option value="law">Law</option>
-                                                <option value="education">Education</option>
-                                                <option value="management">Management</option>
-                                                <option value="other">Other</option>
-                                                </select>
-                                                @error('field_of_study')
-                                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                                @enderror
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Institution name</label>
-                                                <input name="institution" placeholder="Enter Institution name" type="text" class="w-full border border-gray-300 rounded-md p-2" />
-                                                @error('institution')
-                                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                                @enderror
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Graduation year</label>
-                                                <select name="graduate_year" class="w-full border border-gray-300 rounded-md p-2">
-                                                <option>Select year of passing</option>
-                                                <!-- You can dynamically generate these using JS for more scalability -->
-                                                <option>2025</option>
-                                                <option>2024</option>
-                                                <option>2023</option>
-                                                <option>2022</option>
-                                                <option>2021</option>
-                                                <option>2020</option>
-                                                <option>2019</option>
-                                                <option>2018</option>
-                                                <option>2017</option>
-                                                <option>2016</option>
-                                                <option>2015</option>
-                                                <option>2010-2014</option>
-                                                <option>Before 2010</option>
-                                                </select>
-                                                @error('graduate_year')
-                                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                                @enderror
-                                            </div>
-                                            <!-- Remove button -->
-                                            <button type="button" class="remove-education absolute top-2 right-2 text-red-600 font-bold text-lg" style="display:none;">&times;</button>
-                                            </div>
+                                            @for ($i = 0; $i < $educationCount; $i++)
+                                                <div class="education-entry grid grid-cols-2 gap-4 col-span-2 p-4 rounded-md relative border border-gray-300">
+
+                                                    {{-- Highest Qualification --}}
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Highest qualification</label>
+                                                        <select name="high_education[]" class="w-full border border-gray-300 rounded-md p-2">
+                                                            <option value="">Select highest qualification</option>
+                                                            <option value="high_school" {{ old("high_education.$i") == 'high_school' ? 'selected' : '' }}>High School</option>
+                                                            <option value="diploma" {{ old("high_education.$i") == 'diploma' ? 'selected' : '' }}>Diploma</option>
+                                                            <option value="bachelor" {{ old("high_education.$i") == 'bachelor' ? 'selected' : '' }}>Bachelor's Degree</option>
+                                                            <option value="master" {{ old("high_education.$i") == 'master' ? 'selected' : '' }}>Master's Degree</option>
+                                                            <option value="phd" {{ old("high_education.$i") == 'phd' ? 'selected' : '' }}>Ph.D.</option>
+                                                        </select>
+                                                        @error("high_education.$i")
+                                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                                        @enderror
+                                                    </div>
+
+                                                    {{-- Field of Study --}}
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Field of study</label>
+                                                        <select name="field_of_study[]" class="w-full border border-gray-300 rounded-md p-2">
+                                                            <option value="">Select field of study</option>
+                                                            <option value="engineering" {{ old("field_of_study.$i") == 'engineering' ? 'selected' : '' }}>Engineering</option>
+                                                            <option value="science" {{ old("field_of_study.$i") == 'science' ? 'selected' : '' }}>Science</option>
+                                                            <option value="commerce" {{ old("field_of_study.$i") == 'commerce' ? 'selected' : '' }}>Commerce</option>
+                                                            <option value="arts" {{ old("field_of_study.$i") == 'arts' ? 'selected' : '' }}>Arts</option>
+                                                            <option value="medicine" {{ old("field_of_study.$i") == 'medicine' ? 'selected' : '' }}>Medicine</option>
+                                                            <option value="law" {{ old("field_of_study.$i") == 'law' ? 'selected' : '' }}>Law</option>
+                                                            <option value="education" {{ old("field_of_study.$i") == 'education' ? 'selected' : '' }}>Education</option>
+                                                            <option value="management" {{ old("field_of_study.$i") == 'management' ? 'selected' : '' }}>Management</option>
+                                                            <option value="other" {{ old("field_of_study.$i") == 'other' ? 'selected' : '' }}>Other</option>
+                                                        </select>
+                                                        @error("field_of_study.$i")
+                                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                                        @enderror
+                                                    </div>
+
+                                                    {{-- Institution Name --}}
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Institution name</label>
+                                                        <input name="institution[]" type="text" class="w-full border border-gray-300 rounded-md p-2" value="{{ old("institution.$i") }}" placeholder="Enter institution name"/>
+                                                        @error("institution.$i")
+                                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                                        @enderror
+                                                    </div>
+
+                                                    {{-- Graduation Year --}}
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Graduation year</label>
+                                                        <select name="graduate_year[]" class="w-full border border-gray-300 rounded-md p-2">
+                                                            <option value="">Select year of passing</option>
+                                                            @foreach(range(date('Y'), 2010) as $year)
+                                                                <option value="{{ $year }}" {{ old("graduate_year.$i") == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                                            @endforeach
+                                                            <option value="2010-2014" {{ old("graduate_year.$i") == '2010-2014' ? 'selected' : '' }}>2010-2014</option>
+                                                            <option value="before_2010" {{ old("graduate_year.$i") == 'before_2010' ? 'selected' : '' }}>Before 2010</option>
+                                                        </select>
+                                                        @error("graduate_year.$i")
+                                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                                        @enderror
+                                                    </div>
+
+                                                    <button type="button" class="remove-education absolute top-2 right-2 text-red-600 font-bold text-lg" style="{{ $i == 0 ? 'display:none;' : '' }}">&times;</button>
+                                                </div>
+                                            @endfor
+
                                         </div>
 
                                         <div class="col-span-2">
@@ -228,39 +235,59 @@
                                     <div id="step-3" class="hidden">
                                     
                                         <!-- Container for multiple work experience entries -->
+                                        @php
+                                            $workCount = count(old('job_role', [null]));
+                                        @endphp
+
                                         <div id="work-container" class="col-span-2 grid grid-cols-2 gap-4">
-                                        <div class="work-entry grid grid-cols-2 gap-4 col-span-2 p-4 rounded-md relative">
-                                            <div>
-                                            <label class="block mb-1 text-sm font-medium">Job title</label>
-                                            <input type="text" name="job_role" class="w-full border rounded-md p-2" placeholder="e.g. Software Engineer" />
-                                            @error('job_role')
-                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                            @enderror
-                                            </div>
-                                            <div>
-                                            <label class="block mb-1 text-sm font-medium">Organization</label>
-                                            <input name="organization" placeholder="Enter Organization" type="text" class="w-full border rounded-md p-2" />
-                                            @error('organization')
-                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                            @enderror
-                                            </div>
-                                            <div>
-                                            <label class="block mb-1 text-sm font-medium">Started from</label>
-                                            <input type="date" name="starts_from" id="starts_from" class="w-full border rounded-md p-2" />
-                                            @error('starts_from')
-                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                            @enderror
-                                            </div>
-                                            <div>
-                                            <label class="block mb-1 text-sm font-medium">To</label>
-                                            <input type="date" name="end_to" id="end_to" class="w-full border rounded-md p-2" />
-                                            @error('end_to')
-                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                            @enderror
-                                            </div>
-                                            <!-- Remove button -->
-                                            <button type="button" class="remove-work absolute top-2 right-2 text-red-600 font-bold text-lg" style="display:none;">&times;</button>
-                                        </div>
+                                            @for ($i = 0; $i < $workCount; $i++)
+                                                <div class="work-entry grid grid-cols-2 gap-4 col-span-2 p-4 rounded-md relative border border-gray-300">
+
+                                                    {{-- Job Role --}}
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                                                        <input type="text" name="job_role[]" class="w-full border rounded-md p-2"
+                                                            placeholder="e.g. Software Engineer" value="{{ old("job_role.$i") }}" />
+                                                        @error("job_role.$i")
+                                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                                        @enderror
+                                                    </div>
+
+                                                    {{-- Organization --}}
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Organization</label>
+                                                        <input type="text" name="organization[]" class="w-full border rounded-md p-2"
+                                                            placeholder="e.g. ABC Corp" value="{{ old("organization.$i") }}" />
+                                                        @error("organization.$i")
+                                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                                        @enderror
+                                                    </div>
+
+                                                    {{-- Start Date --}}
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Started From</label>
+                                                        <input  name="starts_from[]" id="starts_from" class="w-full border rounded-md p-2"
+                                                            value="{{ old("starts_from.$i") }}" />
+                                                        @error("starts_from.$i")
+                                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                                        @enderror
+                                                    </div>
+
+                                                    {{-- End Date --}}
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
+                                                        <input name="end_to[]" id="end_to"  class="w-full border rounded-md p-2"
+                                                            value="{{ old("end_to.$i") }}" />
+                                                        @error("end_to.$i")
+                                                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                                        @enderror
+                                                    </div>
+
+                                                    {{-- Remove Button --}}
+                                                    <button type="button" class="remove-work absolute top-2 right-2 text-red-600 font-bold text-lg" style="{{ $i == 0 ? 'display:none;' : '' }}">&times;</button>
+
+                                                </div>
+                                            @endfor
                                         </div>
 
                                         <div class="col-span-2">
@@ -280,7 +307,7 @@
                                        
                                         <div>
                                             <label class="block mb-1 text-sm font-medium">Skills</label>
-                                            <input type="text" name="skills" class="w-full border rounded-md p-2" placeholder="e.g. AWS Certified, Python, Project Management" />
+                                            <input type="text" name="skills" class="w-full border rounded-md p-2" placeholder="e.g. AWS Certified, Python, Project Management"  value="{{ old('skills') }}"/>
                                             @error('skills')
                                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                             @enderror
@@ -288,35 +315,36 @@
                                         <div>
                                             <label class="block mb-1 text-sm font-medium">Area of Interests</label>
                                             <select class="w-full border rounded-md p-2" name="interest">
-                                                <option value="" disabled selected>Select an area</option>
-                                                <option value="cloud-computing">Cloud Computing</option>
-                                                <option value="web-development">Web Development</option>
-                                                <option value="data-science">Data Science</option>
-                                                <option value="machine-learning">Machine Learning</option>
-                                                <option value="cybersecurity">Cybersecurity</option>
-                                                <option value="digital-marketing">Digital Marketing</option>
+                                                <option value="" disabled {{ old('interest') ? '' : 'selected' }}>Select an area</option>
+                                                <option value="cloud-computing" {{ old('interest') == 'cloud-computing' ? 'selected' : '' }}>Cloud Computing</option>
+                                                <option value="web-development" {{ old('interest') == 'web-development' ? 'selected' : '' }}>Web Development</option>
+                                                <option value="data-science" {{ old('interest') == 'data-science' ? 'selected' : '' }}>Data Science</option>
+                                                <option value="machine-learning" {{ old('interest') == 'machine-learning' ? 'selected' : '' }}>Machine Learning</option>
+                                                <option value="cybersecurity" {{ old('interest') == 'cybersecurity' ? 'selected' : '' }}>Cybersecurity</option>
+                                                <option value="digital-marketing" {{ old('interest') == 'digital-marketing' ? 'selected' : '' }}>Digital Marketing</option>
                                             </select>
+
                                             @error('interest')
                                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>
                                         <div>
                                             <label class="block mb-1 text-sm font-medium">Job Categories</label>
-                                            <input type="text" name="job_category" class="w-full border rounded-md p-2" placeholder="e.g. Software Engineer, Data Analyst" />
+                                            <input type="text" name="job_category" class="w-full border rounded-md p-2" placeholder="e.g. Software Engineer, Data Analyst" value="{{ old('job_category') }}"/>
                                             @error('job_category')
                                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>
                                         <div>
                                             <label class="block mb-1 text-sm font-medium">Website Link</label>
-                                            <input type="url" name="website_link" class="w-full border rounded-md p-2" placeholder="e.g. https://www.example.com" />
+                                            <input type="url" name="website_link" class="w-full border rounded-md p-2" placeholder="e.g. https://www.example.com" value="{{ old('website_link') }}"/>
                                             @error('website_link')
                                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                             @enderror
                                         </div>
                                         <div>
                                             <label class="block mb-1 text-sm font-medium">Portfolio Link</label>
-                                            <input type="url" name="portfolio_link" class="w-full border rounded-md p-2" placeholder="e.g. https://portfolio.example.com" />
+                                            <input type="url" name="portfolio_link" class="w-full border rounded-md p-2" placeholder="e.g. https://portfolio.example.com" value="{{ old('portfolio_link') }}"/>
                                             @error('portfolio_link')
                                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                             @enderror
@@ -419,15 +447,14 @@
     const addEducationBtn = document.getElementById('add-education');
 
     addEducationBtn.addEventListener('click', () => {
-        // Clone the first education-entry
         const firstEntry = educationContainer.querySelector('.education-entry');
         const clone = firstEntry.cloneNode(true);
 
-        // Clear input/select values in cloned node
         clone.querySelectorAll('input').forEach(input => input.value = '');
         clone.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
 
-        // Show remove button on cloned entries
+        clone.querySelectorAll('p.text-red-600').forEach(error => error.remove());
+
         clone.querySelector('.remove-education').style.display = 'block';
 
         educationContainer.appendChild(clone);
@@ -439,8 +466,9 @@
         entry.remove();
         }
     });
-
-    // Function to handle work experience add/remove
+</script>
+<script>
+    // Function to handle work exprience add/remove
     const workContainer = document.getElementById('work-container');
     const addWorkBtn = document.getElementById('add-work');
 
@@ -448,10 +476,8 @@
         const firstEntry = workContainer.querySelector('.work-entry');
         const clone = firstEntry.cloneNode(true);
 
-        // Clear input values in cloned node
         clone.querySelectorAll('input').forEach(input => input.value = '');
-
-        // Show remove button on cloned entries
+        clone.querySelectorAll('p.text-red-600').forEach(error => error.remove());
         clone.querySelector('.remove-work').style.display = 'block';
 
         workContainer.appendChild(clone);

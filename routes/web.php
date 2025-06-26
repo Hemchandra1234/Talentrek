@@ -125,9 +125,12 @@ Route::group(['prefix' => 'jobseeker'], function() {
 		Route::post('/login',[App\Http\Controllers\JobseekerController::class, 'authenticate'])->name('jobseeker.auth');
 		Route::get('/profile', [JobseekerController::class, 'showProfilePage'])->name('jobseeker.profile');
 		Route::get('/profile', [JobseekerController::class, 'getJobseekerAllDetails'])->name('jobseeker.profile');
-		Route::post('/logout',[App\Http\Controllers\JobseekerController::class, 'logoutJobseeker'])->name('jobseeker.logout');
-		Route::post('/profile/update-personal-info',[App\Http\Controllers\JobseekerController::class, 'updatePersonalInfo'])->name('jobseeker.profile.update');
-		
+		Route::post('/logout',[JobseekerController::class, 'logoutJobseeker'])->name('jobseeker.logout');
+		Route::post('/profile/update-personal-info',[JobseekerController::class, 'updatePersonalInfo'])->name('jobseeker.profile.update');
+		Route::post('/profile/update-education-info',[JobseekerController::class, 'updateEducationInfo'])->name('jobseeker.education.update');
+		Route::post('/profile/update-work-exprience-info',[JobseekerController::class, 'updateWorkExprienceInfo'])->name('jobseeker.workexprience.update'); 
+
+		Route::post('/profile/update-skills-info',[JobseekerController::class, 'updateSkillsInfo'])->name('jobseeker.skill.update'); 
 	});
 });
 
